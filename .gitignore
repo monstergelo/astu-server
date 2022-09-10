@@ -1,0 +1,15 @@
+# Dependency directories
+node_modules/
+
+# Compiled binary addons (https://nodejs.org/api/addons.html)
+build/
+
+# Optional eslint cache
+.eslintcache
+
+# dotenv environment variable files
+.env
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
