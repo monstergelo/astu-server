@@ -4,6 +4,7 @@ import dotenv from 'dotenv'
 
 dotenv.config();
 const port = process.env.PORT || 3000
+console.log(port)
 
 // Require the framework and instantiate it
 const fastify = Fastify({ logger: true })
