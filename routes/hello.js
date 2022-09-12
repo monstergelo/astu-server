@@ -1,6 +1,7 @@
 async function routes (fastify, options) {
-  fastify.get('/', async (request, reply) => {
-    return { hello: 'world' }
+  fastify.get('/:name', async (request, reply) => {
+    const name = request.params.name || 'world'
+    return { hello: name }
   })
 }
 
