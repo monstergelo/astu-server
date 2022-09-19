@@ -36,9 +36,9 @@ async function routes (fastify, options) {
         `
           INSERT INTO kopi_bubuk.measurement (
             date_of_visit, sex, date_of_birth, is_approximate_date, is_unknown_date, weight, height,
-            measured, oedema, head_circumference, muac, triceps_skinfold, subscapular_skinfold, measuree
+            measured, oedema, head_circumference, muac, triceps_skinfold, subscapular_skinfold, measuree_id, facility_id
           )
-          VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14);
+          VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15);
         `, [
           request.body['date_of_visit'],
           request.body['sex'],
@@ -53,7 +53,8 @@ async function routes (fastify, options) {
           request.body['muac'],
           request.body['triceps_skinfold'],
           request.body['subscapular_skinfold'],
-          request.body['measuree'],
+          request.body['measuree_id'],
+          request.body['facility_id'],
         ]
       )
 
@@ -84,7 +85,8 @@ async function routes (fastify, options) {
             muac=COALESCE($12, muac),
             triceps_skinfold=COALESCE($13, triceps_skinfold),
             subscapular_skinfold=COALESCE($14, subscapular_skinfold),
-            measuree=COALESCE($15, measuree)
+            measuree_id=COALESCE($15, measuree_id)
+            facility_id=COALESCE($16, facility_id)
           WHERE id=$1;
         `, [
           request.params['id'],
@@ -101,7 +103,8 @@ async function routes (fastify, options) {
           request.body['muac'],
           request.body['triceps_skinfold'],
           request.body['subscapular_skinfold'],
-          request.body['measuree'],
+          request.body['measuree_id'],
+          request.body['facility_id'],
         ]
       )
 

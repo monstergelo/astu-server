@@ -1,5 +1,7 @@
 import helloRoute from './routes/hello.js'
 import measurementRoute from './routes/measurement.js'
+import measureeRoute from './routes/measuree.js'
+import facilityRoute from './routes/facility.js'
 import Fastify from 'fastify'
 import dotenv from 'dotenv'
 import postgres from '@fastify/postgres'
@@ -20,6 +22,8 @@ fastify.register(postgres, {
 
 fastify.register(helloRoute);
 fastify.register(measurementRoute);
+fastify.register(measureeRoute);
+fastify.register(facilityRoute);
 
 // Run the server!
 const start = async () => {
