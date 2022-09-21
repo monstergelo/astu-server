@@ -40,7 +40,7 @@ async function routes (fastify, options) {
         )
         select m.*, to_json(g) as last_measurement
         from kopi_bubuk.measuree m 
-        join get_last_visit g
+        full join get_last_visit g
         on m.id = g.measuree_id
         where UPPER(name) like UPPER('%' || $1 || '%')        
         `, [searchQuery]
@@ -68,7 +68,7 @@ async function routes (fastify, options) {
         select 
           me.*, json_agg(m) AS measurements
         FROM kopi_bubuk.measuree me
-        join m
+        full join m
         ON me.id = m.measuree_id
         where me.id = $1
         group by me.id
