@@ -18,6 +18,7 @@ async function routes (fastify, options) {
           get_last_visit as (
           select 
             m.date_of_visit,
+            m.status,
             m.sex,
             m.date_of_birth,
             m.is_approximate_date,
