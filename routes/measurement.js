@@ -114,7 +114,7 @@ async function routes (fastify, options) {
     }
   })
 
-  //DELETE
+  //DELETE==============================================================
   fastify.delete('/measurement/:id', async (request, reply) => {
     const client = await fastify.pg.connect()
     try {
