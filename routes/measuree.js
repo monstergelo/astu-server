@@ -25,7 +25,8 @@ async function routes (fastify, options) {
             m.is_unknown_date,
             m.weight,
             m.height,
-            m.measured,
+            m.recumbent_weight,
+            m.recumbent_height,
             m.oedema,
             m.head_circumference,
             m.muac,
@@ -90,13 +91,14 @@ async function routes (fastify, options) {
       const value = await client.query(
         `
           INSERT INTO kopi_bubuk.measuree (
-            name, address, date_of_birth
+            name, address, date_of_birth, sex
           )
-          VALUES($1, $2, $3);
+          VALUES($1, $2, $3, $4);
         `, [
           request.body['name'],
           request.body['address'],
           request.body['date_of_birth'],
+          request.body['sex'],
         ]
       )
 
@@ -117,12 +119,14 @@ async function routes (fastify, options) {
             name=COALESCE($2, name),
             address=COALESCE($3, address),
             date_of_birth=COALESCE($4, date_of_birth)
+            sex=COALESCE($5, sex)
           WHERE id=$1;
         `, [
           request.params['id'],
           request.body['name'],
           request.body['address'],
           request.body['date_of_birth'],
+          request.body['sex'],
         ]
       )
 

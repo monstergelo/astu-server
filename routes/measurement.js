@@ -35,10 +35,11 @@ async function routes (fastify, options) {
       const value = await client.query(
         `
           INSERT INTO kopi_bubuk.measurement (
-            date_of_visit, sex, date_of_birth, is_approximate_date, is_unknown_date, weight, height,
-            measured, oedema, head_circumference, muac, triceps_skinfold, subscapular_skinfold, measuree_id, facility_id
+            date_of_visit, sex, date_of_birth, is_approximate_date, is_unknown_date, weight, height, recumbent_weight, recumbent_height,
+            oedema, head_circumference, muac, triceps_skinfold, subscapular_skinfold, status,
+            measuree_id, facility_id
           )
-          VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15);
+          VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17);
         `, [
           request.body['date_of_visit'],
           request.body['sex'],
@@ -47,12 +48,14 @@ async function routes (fastify, options) {
           request.body['is_unknown_date'],
           request.body['weight'],
           request.body['height'],
-          request.body['measured'],
+          request.body['recumbent_weight'],
+          request.body['recumbent_height'],
           request.body['oedema'],
           request.body['head_circumference'],
           request.body['muac'],
           request.body['triceps_skinfold'],
           request.body['subscapular_skinfold'],
+          request.body['status'],
           request.body['measuree_id'],
           request.body['facility_id'],
         ]
@@ -79,14 +82,16 @@ async function routes (fastify, options) {
             is_unknown_date=COALESCE($6, is_unknown_date),
             weight=COALESCE($7, weight),
             height=COALESCE($8, height),
-            measured=COALESCE($9, measured),
-            oedema=COALESCE($10, oedema),
-            head_circumference=COALESCE($11, head_circumference),
-            muac=COALESCE($12, muac),
-            triceps_skinfold=COALESCE($13, triceps_skinfold),
-            subscapular_skinfold=COALESCE($14, subscapular_skinfold),
-            measuree_id=COALESCE($15, measuree_id)
-            facility_id=COALESCE($16, facility_id)
+            recumbent_weight=COALESCE($9, recumbent_weight),
+            recumbent_height=COALESCE($10, recumbent_height),
+            oedema=COALESCE($11, oedema),
+            head_circumference=COALESCE($12, head_circumference),
+            muac=COALESCE($13, muac),
+            triceps_skinfold=COALESCE($14, triceps_skinfold),
+            subscapular_skinfold=COALESCE($15, subscapular_skinfold),
+            subscapular_skinfold=COALESCE($16, status),
+            measuree_id=COALESCE($17, measuree_id),
+            facility_id=COALESCE($18, facility_id)
           WHERE id=$1;
         `, [
           request.params['id'],
@@ -97,13 +102,16 @@ async function routes (fastify, options) {
           request.body['is_unknown_date'],
           request.body['weight'],
           request.body['height'],
+          request.body['recumbent_weight'],
+          request.body['recumbent_height'],
           request.body['measured'],
           request.body['oedema'],
           request.body['head_circumference'],
           request.body['muac'],
           request.body['triceps_skinfold'],
           request.body['subscapular_skinfold'],
-          request.body['measuree_id'],
+          request.body['subscapular_skinfold'],
+          request.body['status'],
           request.body['facility_id'],
         ]
       )
