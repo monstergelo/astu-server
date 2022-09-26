@@ -39,7 +39,8 @@ async function routes (fastify, options) {
             oedema, head_circumference, muac, triceps_skinfold, subscapular_skinfold, status,
             measuree_id, facility_id
           )
-          VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17);
+          VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+          RETURNING *;
         `, [
           request.body['date_of_visit'],
           request.body['sex'],
@@ -61,7 +62,10 @@ async function routes (fastify, options) {
         ]
       )
 
-      return 'success'
+      return {
+        status: 'success',
+        data: value.rows[0]
+      }
     } finally {
       client.release()
     }
@@ -89,10 +93,11 @@ async function routes (fastify, options) {
             muac=COALESCE($13, muac),
             triceps_skinfold=COALESCE($14, triceps_skinfold),
             subscapular_skinfold=COALESCE($15, subscapular_skinfold),
-            subscapular_skinfold=COALESCE($16, status),
+            status=COALESCE($16, status),
             measuree_id=COALESCE($17, measuree_id),
             facility_id=COALESCE($18, facility_id)
-          WHERE id=$1;
+          WHERE id=$1
+          RETURNING *;
         `, [
           request.params['id'],
           request.body['date_of_visit'],
@@ -104,19 +109,21 @@ async function routes (fastify, options) {
           request.body['height'],
           request.body['recumbent_weight'],
           request.body['recumbent_height'],
-          request.body['measured'],
           request.body['oedema'],
           request.body['head_circumference'],
           request.body['muac'],
           request.body['triceps_skinfold'],
           request.body['subscapular_skinfold'],
-          request.body['subscapular_skinfold'],
           request.body['status'],
+          request.body['measuree_id'],
           request.body['facility_id'],
         ]
       )
 
-      return 'success'
+      return {
+        status: 'success',
+        data: value.rows[0]
+      }
     } finally {
       client.release()
     }
@@ -126,14 +133,18 @@ async function routes (fastify, options) {
   fastify.delete('/measurement/:id', async (request, reply) => {
     const client = await fastify.pg.connect()
     try {
-      const { rows } = await client.query(
+      const value = await client.query(
         `
           DELETE FROM kopi_bubuk.measurement
-          WHERE id=$1;
+          WHERE id=$1
+          RETURNING *;
         `, [request.params.id]
       )
 
-      return 'success'
+      return {
+        status: 'success',
+        data: value.rows[0]
+      }
     } finally {
       client.release()
     }

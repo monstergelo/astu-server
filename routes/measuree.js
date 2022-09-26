@@ -93,7 +93,8 @@ async function routes (fastify, options) {
           INSERT INTO kopi_bubuk.measuree (
             name, address, date_of_birth, sex
           )
-          VALUES($1, $2, $3, $4);
+          VALUES($1, $2, $3, $4)
+          RETURNING *;
         `, [
           request.body['name'],
           request.body['address'],
@@ -102,7 +103,10 @@ async function routes (fastify, options) {
         ]
       )
 
-      return 'success'
+      return {
+        status: 'success',
+        data: value.rows[0]
+      }
     } finally {
       client.release()
     }
@@ -118,9 +122,10 @@ async function routes (fastify, options) {
           SET
             name=COALESCE($2, name),
             address=COALESCE($3, address),
-            date_of_birth=COALESCE($4, date_of_birth)
+            date_of_birth=COALESCE($4, date_of_birth),
             sex=COALESCE($5, sex)
-          WHERE id=$1;
+          WHERE id=$1
+          RETURNING *;
         `, [
           request.params['id'],
           request.body['name'],
@@ -130,7 +135,10 @@ async function routes (fastify, options) {
         ]
       )
 
-      return 'success'
+      return {
+        status: 'success',
+        data: value.rows[0]
+      }
     } finally {
       client.release()
     }
@@ -140,14 +148,18 @@ async function routes (fastify, options) {
   fastify.delete('/measuree/:id', async (request, reply) => {
     const client = await fastify.pg.connect()
     try {
-      const { rows } = await client.query(
+      const value = await client.query(
         `
           DELETE FROM kopi_bubuk.measuree
-          WHERE id=$1;
+          WHERE id=$1
+          RETURNING *;
         `, [request.params.id]
       )
 
-      return 'success'
+      return {
+        status: 'success',
+        data: value.rows[0]
+      }
     } finally {
       client.release()
     }
