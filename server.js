@@ -22,7 +22,7 @@ const fastify = Fastify({ logger: true })
 
 fastify.register(cookie)
 fastify.register(jwt, {
-  secret: 'supersecret'
+  secret: process.env.JWT_SECRET
 })
 fastify.register(postgres, {
   connectionString: process.env.DB_URI,
