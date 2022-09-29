@@ -1,13 +1,31 @@
 async function routes (fastify, options) {
+  fastify.addHook('preHandler', fastify.auth([fastify.verifyJWTandLevel]))
+
   //GET-ALL====================================================================
   fastify.get('/measurement', async (request, reply) => {
     const client = await fastify.pg.connect()
+    const isAdmin = request?.user?.username === 'admin'
+
     try {
+      // admin
+      if (isAdmin) {
+        const { rows } = await client.query(
+          'SELECT * FROM kopi_bubuk.measurement'
+        )
+  
+        return rows
+      }
+
+      // non-admin
       const { rows } = await client.query(
-        'SELECT * FROM kopi_bubuk.measurement'
+        `
+          SELECT * FROM kopi_bubuk.measurement
+          WHERE measurer_id=$1
+        `, [request?.user?.measurer_id]
       )
 
       return rows
+      
     } finally {
       client.release()
     }
@@ -16,13 +34,28 @@ async function routes (fastify, options) {
   //GET-ONE from id============================================================
   fastify.get('/measurement/:id', async (request, reply) => {
     const client = await fastify.pg.connect()
+    const isAdmin = request?.user?.username === 'admin'
+
     try {
+      // admin
+      if (isAdmin) {
+        const { rows } = await client.query(
+          'SELECT * FROM kopi_bubuk.measurement WHERE id=$1', [request.params.id]
+        )
+  
+        const row = rows[0] || {}
+        return row
+      }
+
+      // non-admin
       const { rows } = await client.query(
-        'SELECT * FROM kopi_bubuk.measurement WHERE id=$1', [request.params.id]
+        'SELECT * FROM kopi_bubuk.measurement WHERE id=$1 AND measurer_id=$2'
+        ,[request.params.id, request?.user?.measurer_id]
       )
 
       const row = rows[0] || {}
       return row
+
     } finally {
       client.release()
     }
@@ -37,9 +70,9 @@ async function routes (fastify, options) {
           INSERT INTO kopi_bubuk.measurement (
             date_of_visit, sex, date_of_birth, is_approximate_date, is_unknown_date, weight, height, recumbent_weight, recumbent_height,
             oedema, head_circumference, muac, triceps_skinfold, subscapular_skinfold, status,
-            measuree_id, facility_id
+            measuree_id, facility_id, measurer_id
           )
-          VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+          VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
           RETURNING *;
         `, [
           request.body['date_of_visit'],
@@ -59,6 +92,7 @@ async function routes (fastify, options) {
           request.body['status'],
           request.body['measuree_id'],
           request.body['facility_id'],
+          request?.user?.measurer_id,
         ]
       )
 

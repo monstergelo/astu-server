@@ -1,4 +1,6 @@
 async function routes (fastify, options) {
+  fastify.addHook('preHandler', fastify.auth([fastify.verifyJWTandLevel]))
+
   //GET-ALL====================================================================
   fastify.get('/measuree', async (request, reply) => {
     const client = await fastify.pg.connect()
@@ -45,6 +47,61 @@ async function routes (fastify, options) {
         on m.id = g.measuree_id
         where UPPER(name) like UPPER('%' || $1 || '%')        
         `, [searchQuery]
+      )
+
+      return rows
+    } finally {
+      client.release()
+    }
+  })
+
+  //GET-PERSONAL====================================================================
+  fastify.get('/measuree-personal', async (request, reply) => {
+    const client = await fastify.pg.connect()
+    const searchQuery = request.query['q'] || ''
+
+    try {
+      const { rows } = await client.query(
+        `
+        with m as (
+          select
+          ROW_NUMBER() over (partition by me1.id) as latest,
+          mt1.*
+          from kopi_bubuk.measuree me1
+          join kopi_bubuk.measurement mt1
+          on me1.id = mt1.measuree_id
+          WHERE mt1.measurer_id=$2
+        ),
+          get_last_visit as (
+          select 
+            m.date_of_visit,
+            m.status,
+            m.sex,
+            m.date_of_birth,
+            m.is_approximate_date,
+            m.is_unknown_date,
+            m.weight,
+            m.height,
+            m.recumbent_weight,
+            m.recumbent_height,
+            m.oedema,
+            m.head_circumference,
+            m.muac,
+            m.triceps_skinfold,
+            m.subscapular_skinfold,
+            m.measuree_id,
+            m.facility_id
+          FROM kopi_bubuk.measuree me
+          join m
+          ON me.id = m.measuree_id
+          where m.latest = 1
+        )
+        select m.*, to_json(g) as last_measurement
+        from kopi_bubuk.measuree m 
+        join get_last_visit g
+        on m.id = g.measuree_id
+        where UPPER(name) like UPPER('%' || $1 || '%')        
+        `, [searchQuery, request?.user?.measurer_id]
       )
 
       return rows
