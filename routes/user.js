@@ -48,7 +48,9 @@ async function routes (fastify, options) {
       const value = await client.query(
         `
           SELECT * 
-          FROM kopi_bubuk.user
+          FROM kopi_bubuk.user u
+          JOIN kopi_bubuk.measurer m
+          ON u.measurer_id = m.id
           WHERE username=$1;
         `, [
           username,
@@ -70,6 +72,14 @@ async function routes (fastify, options) {
 
         return {
           status: 'success',
+          data: {
+            id: value.rows[0].id,
+            username: value.rows[0].username,
+            name: value.rows[0].name,
+            email: value.rows[0].email,
+            location: value.rows[0].location,
+            token
+          }
         }
       }
 
