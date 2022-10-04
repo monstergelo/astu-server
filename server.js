@@ -45,7 +45,8 @@ await fastify.after()
 // })
 
 fastify.decorate('verifyJWTandLevel', function (request, reply, done) {
-  const token = request.cookies.jwt
+  const auth = request?.headers?.authorization;
+  const token = request.cookies.jwt || auth.split(' ')[1]
   const verified = fastify.jwt.verify(token)
   request.user = verified
 

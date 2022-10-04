@@ -100,6 +100,61 @@ async function routes (fastify, options) {
       msg: 'successfully logged out'
     }
   })
+  //GET-PROFILE=================================================================
+  fastify.get('/user', async (request, reply) => {
+    const client = await fastify.pg.connect()
+    try {
+      const user = fastify.jwt.verify(request.cookies.jwt)
+      const id = user?.measurer_id;
+      const value = await client.query(
+        `
+          SELECT *
+          FROM kopi_bubuk.measurer 
+          WHERE id=$1;
+        `, [
+          id
+        ]
+      )
+
+      return {
+        status: 'success',
+        data: value.rows[0],
+      }
+    } finally {
+      client.release()
+    }
+  })
+  //UPDATE-PROFILE=================================================================
+  fastify.put('/user', async (request, reply) => {
+    const client = await fastify.pg.connect()
+    try {
+      const user = fastify.jwt.verify(request.cookies.jwt)
+      const id = user?.measurer_id;
+      const value = await client.query(
+        `
+          UPDATE kopi_bubuk.measurer 
+          SET
+            name=COALESCE($2, name),
+            email=COALESCE($3, email),
+            location=COALESCE($4, location)
+          WHERE id=$1
+          RETURNING *;
+        `, [
+          id,
+          request.body['name'],
+          request.body['email'],
+          request.body['location'],
+        ]
+      )
+
+      return {
+        status: 'success',
+        data: value.rows[0]
+      }
+    } finally {
+      client.release()
+    }
+  })
 }
 
 export default routes
