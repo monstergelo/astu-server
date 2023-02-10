@@ -78,6 +78,7 @@ async function routes (fastify, options) {
             name: value.rows[0].name,
             email: value.rows[0].email,
             location: value.rows[0].location,
+            measurer_id: value.rows[0].measurer_id,
             token
           }
         }
